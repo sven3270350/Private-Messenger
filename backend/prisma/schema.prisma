@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(uuid())
+  wallet    String?   @unique
+  email     String?
+  phone     String?
+  username  String?
+  fullName  String?
+  bio       String?
+  avatar    String[]
+  lastSeen  DateTime  @default(now())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  contact   Contact[]
+}
+
+model Contact {
+  id      String   @id @default(uuid())
+  ownerId String
+  Owner   User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  contact String[]
+}
+
+model Conversation {
+  id            String   @id @default(uuid())
+  participants  String[]
+  messages      String[]
+  lastMessageId String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Message {
+  id        String      @id @default(uuid())
+  sender    String
+  body      String?
+  files     Json?
+  call      Json?
+  type      MessageType @default(TEXT)
+  seen      Boolean     @default(false)
+  edited    Boolean     @default(false)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+enum MessageType {
+  TEXT
+  FILE
+  CALL
+}
